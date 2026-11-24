@@ -134,17 +134,17 @@
       canvas.width = 512; canvas.height = 512;
       const ctx = canvas.getContext('2d');
 
-      // ★重厚なダークウッド（黒檀〜深いマホガニー）の背景グラデーション
+      // ★明るい白木（ナチュラルメープル）風の温かみのある背景グラデーション
       const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
-      bgGrad.addColorStop(0, '#3e2723');   // 落ち着いた濃い木目ブラウン
-      bgGrad.addColorStop(0.5, '#271714'); // 深みのあるマホガニー
-      bgGrad.addColorStop(1, '#160c0a');   // 黒檀のような引き締まったダークブラウン
+      bgGrad.addColorStop(0, '#fefce8');   // 明るいクリームアイボリー
+      bgGrad.addColorStop(0.5, '#fef3c7'); // 温かみのあるナチュラルベージュ
+      bgGrad.addColorStop(1, '#fde68a');   // 優しいハニーウッド色
       ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 512, 512);
 
-      // バイオリンを際立たせる温かみのある琥珀色のスポットライト
-      const glow = ctx.createRadialGradient(256, 256, 40, 256, 256, 240);
-      glow.addColorStop(0, 'rgba(245, 158, 11, 0.30)');
-      glow.addColorStop(1, 'rgba(22, 12, 10, 0)');
+      // 中央をふんわり明るく照らす光のグラデーション
+      const glow = ctx.createRadialGradient(256, 256, 30, 256, 256, 250);
+      glow.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+      glow.addColorStop(1, 'rgba(253, 230, 138, 0)');
       ctx.fillStyle = glow; ctx.fillRect(0, 0, 512, 512);
 
       ctx.save(); ctx.translate(256, 266); ctx.rotate(35 * Math.PI / 180);
