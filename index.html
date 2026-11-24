@@ -42,9 +42,21 @@
       width: 100%; padding: 10px 12px; margin-bottom: 14px; border: 2px solid #94a3b8;
       border-radius: 10px; font-size: 16px; background: #f8fafc; color: #0f172a; font-family: inherit;
     }
-    textarea { height: 90px; resize: vertical; }
-    .row-group { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
-    .row-group input[type="date"] { flex: 1; margin-bottom: 0; padding: 9px 10px; }
+    textarea { height: 80px; resize: vertical; }
+    .row-group { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+    .row-group input { flex: 1; margin-bottom: 0; }
+    .row-group input[type="date"] { padding: 9px 10px; }
+
+    /* ★ふくいホール ワンタップ選択ボタン */
+    .preset-btn {
+      padding: 10px 12px;
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: bold;
+      white-space: nowrap; cursor: pointer; border-bottom: 4px solid #b45309;
+      box-shadow: 0 3px 8px rgba(217, 119, 6, 0.35); transition: all 0.08s ease;
+    }
+    .preset-btn:active { transform: translateY(3px); border-bottom-width: 1px; }
+
     .add-btn {
       padding: 11px 18px; background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
       color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: bold;
@@ -78,6 +90,7 @@
     .card-body { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .left-info { flex-shrink: 0; }
     .date { font-size: 15px; font-weight: 700; color: #334155; margin-bottom: 2px; }
+    .place-tag { font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 4px; }
     .countdown { font-size: 18px; font-weight: bold; color: #e11d48; line-height: 1.1; }
     .countdown span { font-size: 38px; margin: 0 1px; text-shadow: 0 1px 2px rgba(225, 29, 72, 0.15); }
     .today { font-size: 20px; color: #b45309; }
@@ -117,10 +130,19 @@
       <div class="form-box">
         <label class="input-label">演奏会名</label>
         <input type="text" id="inputTitle" placeholder="例：定期演奏会">
+
+        <!-- ★場所入力と「ふくいホール」ボタン -->
+        <label class="input-label">場所</label>
+        <div class="row-group">
+          <input type="text" id="inputPlace" placeholder="会場名を入力">
+          <button type="button" class="preset-btn" onclick="setFukuiHall()">🎻 ふくいホール</button>
+        </div>
+
         <label class="input-label">演奏曲目（改行して複数入力できます）</label>
         <textarea id="inputProgram" placeholder="例：&#10;祝典序曲&#10;交響曲第5番「運命」"></textarea>
+
         <label class="input-label">本番日</label>
-        <div class="row-group">
+        <div class="row-group" style="margin-bottom:0;">
           <input type="date" id="inputDate">
           <button id="submitBtn" class="add-btn" onclick="saveConcert()">追加する</button>
         </div>
@@ -134,14 +156,12 @@
       canvas.width = 512; canvas.height = 512;
       const ctx = canvas.getContext('2d');
 
-      // ★明るい白木（ナチュラルメープル）風の温かみのある背景グラデーション
       const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
-      bgGrad.addColorStop(0, '#fefce8');   // 明るいクリームアイボリー
-      bgGrad.addColorStop(0.5, '#fef3c7'); // 温かみのあるナチュラルベージュ
-      bgGrad.addColorStop(1, '#fde68a');   // 優しいハニーウッド色
+      bgGrad.addColorStop(0, '#fefce8');
+      bgGrad.addColorStop(0.5, '#fef3c7');
+      bgGrad.addColorStop(1, '#fde68a');
       ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 512, 512);
 
-      // 中央をふんわり明るく照らす光のグラデーション
       const glow = ctx.createRadialGradient(256, 256, 30, 256, 256, 250);
       glow.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
       glow.addColorStop(1, 'rgba(253, 230, 138, 0)');
@@ -151,8 +171,8 @@
 
       const bodyGrad = ctx.createLinearGradient(-90, -100, 90, 120);
       bodyGrad.addColorStop(0, '#d97706'); bodyGrad.addColorStop(0.5, '#b45309'); bodyGrad.addColorStop(1, '#78350f');
-      ctx.fillStyle = bodyGrad; ctx.strokeStyle = '#fef3c7'; ctx.lineWidth = 4;
-      ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 10;
+      ctx.fillStyle = bodyGrad; ctx.strokeStyle = '#451a03'; ctx.lineWidth = 5;
+      ctx.shadowColor = 'rgba(69, 26, 3, 0.35)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 10;
 
       ctx.beginPath(); ctx.moveTo(0, -110);
       ctx.bezierCurveTo(60, -110, 75, -55, 55, -25);
@@ -198,14 +218,19 @@
     const STORAGE_KEY = 'my_concert_list_v2';
     let editingId = null;
     let concerts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
-      { id: 1, title: '定期演奏会（サンプル）', date: '2026-12-20', program: '祝典序曲\n交響曲第5番「運命」' }
+      { id: 1, title: '定期演奏会（サンプル）', place: 'ふくいホール', date: '2026-12-20', program: '祝典序曲\n交響曲第5番「運命」' }
     ];
+
+    function setFukuiHall() {
+      document.getElementById('inputPlace').value = 'ふくいホール';
+    }
 
     function openAddScreen() {
       editingId = null;
       document.getElementById('formScreenTitle').textContent = '新しい演奏会を登録';
       document.getElementById('submitBtn').textContent = '追加する';
       document.getElementById('inputTitle').value = '';
+      document.getElementById('inputPlace').value = '';
       document.getElementById('inputProgram').value = '';
       document.getElementById('inputDate').value = '';
       document.getElementById('listScreen').classList.add('hidden');
@@ -219,6 +244,7 @@
       document.getElementById('formScreenTitle').textContent = '演奏会の予定を変更';
       document.getElementById('submitBtn').textContent = '保存する';
       document.getElementById('inputTitle').value = target.title;
+      document.getElementById('inputPlace').value = target.place || '';
       document.getElementById('inputProgram').value = target.program || '';
       document.getElementById('inputDate').value = target.date;
       document.getElementById('listScreen').classList.add('hidden');
@@ -238,14 +264,15 @@
 
     function saveConcert() {
       const title = document.getElementById('inputTitle').value.trim();
+      const place = document.getElementById('inputPlace').value.trim();
       const program = document.getElementById('inputProgram').value.trim();
       const date = document.getElementById('inputDate').value;
       if (!title || !date) { alert('「演奏会名」と「本番日」を入力してください！'); return; }
       if (editingId !== null) {
         const target = concerts.find(item => item.id === editingId);
-        if (target) { target.title = title; target.program = program; target.date = date; }
+        if (target) { target.title = title; target.place = place; target.program = program; target.date = date; }
       } else {
-        concerts.push({ id: Date.now(), title: title, program: program, date: date });
+        concerts.push({ id: Date.now(), title: title, place: place, program: program, date: date });
       }
       saveAndSort(); showListScreen();
     }
@@ -288,6 +315,7 @@
         else { htmlText = '本番終了'; statusClass = 'finished'; }
 
         const formattedDate = `${y}/${m}/${d} (${getDayOfWeek(item.date)})`;
+        const placeHtml = item.place ? `<div class="place-tag">📍 ${escapeHtml(item.place)}</div>` : '';
         const programHtml = item.program ? `<div class="program-box">${escapeHtml(item.program)}</div>` : '';
 
         listEl.innerHTML += `
@@ -302,6 +330,7 @@
             <div class="card-body">
               <div class="left-info">
                 <div class="date">${formattedDate}</div>
+                ${placeHtml}
                 <div class="countdown ${statusClass}">${htmlText}</div>
               </div>
               ${programHtml}
